@@ -1,4 +1,4 @@
-module leveldb-web
+module github.com/Dowte/leveldb-web
 
 go 1.14
 

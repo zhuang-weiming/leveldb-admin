@@ -1,13 +1,12 @@
 package main
 
 import (
+	leveldbweb "github.com/Dowte/leveldb-web"
 	"github.com/syndtr/goleveldb/leveldb"
-	leveldb_web "leveldb-web"
 	"os"
 )
 
 func main() {
-
 	c := make(chan interface{})
 
 	os.MkdirAll("/tmp/leveldb", 0755)
@@ -16,7 +15,7 @@ func main() {
 		panic(err)
 	}
 
-	leveldb_web.Register(db, "temp")
+	leveldbweb.Register(db, "temp")
 
 	db.Put([]byte("key"), []byte("vale"), nil)
 
