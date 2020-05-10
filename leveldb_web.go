@@ -15,6 +15,9 @@ import (
 var dbs sync.Map
 var hostIp string
 
+const prefix = "/leveldb_web/"
+const testUrl = "/test_leveldb_web"
+
 func getAddress() string {
 	if envAddr := os.Getenv("LEVEL_WEB_ADDRESS"); envAddr != "" {
 		return envAddr
@@ -38,11 +41,11 @@ func RunWebServer() error {
 		return err
 	}
 	mux := http.NewServeMux()
-	mux.HandleFunc("/test", func(writer http.ResponseWriter, request *http.Request) {
+	mux.HandleFunc(testUrl, func(writer http.ResponseWriter, request *http.Request) {
 		writer.Write([]byte("hello world"))
 	})
 
-	mux.HandleFunc("/", DBList)
+	mux.HandleFunc(prefix, DBList)
 
 	port := listen.Addr().(*net.TCPAddr).Port
 
@@ -51,7 +54,7 @@ func RunWebServer() error {
 		Handler: mux,
 	}
 
-	hostIp = fmt.Sprintf("127.0.0.1:%d", port)
+	hostIp = fmt.Sprintf("http://127.0.0.1:%d", port)
 
 	log.Printf("leveldb web server on: %s", hostIp)
 
@@ -59,7 +62,7 @@ func RunWebServer() error {
 }
 
 func DBList(writer http.ResponseWriter, request *http.Request) {
-	reg := regexp.MustCompile(`(/([\w]*))(/(.*))?`)
+	reg := regexp.MustCompile(prefix + `(([\w]*))(\/(.*))?`)
 
 	if reg.MatchString(request.URL.Path) {
 		base := reg.FindSubmatch([]byte(request.URL.Path))
@@ -72,10 +75,10 @@ func DBList(writer http.ResponseWriter, request *http.Request) {
 			}
 		}
 
-		if len(res) == 2 {
+		if len(res) <= 2 {
 			var dbList []string
 			dbs.Range(func(key, value interface{}) bool {
-				p := fmt.Sprintf(`<p><a href="/%v">%v</a></p>`, key, key)
+				p := fmt.Sprintf(`<p><a href="%s%v">%v</a></p>`, prefix, key, key)
 				dbList = append(dbList, p)
 				return true
 			})
@@ -116,7 +119,7 @@ func KeyList(dbKey string) func(writer http.ResponseWriter, request *http.Reques
 			defer iter.Release()
 
 			for iter.Next() {
-				p := fmt.Sprintf(`<p><a href="/%s/%s">%s</a></p>`, dbKey, string(iter.Key()[:]), string(iter.Key()[:]))
+				p := fmt.Sprintf(`<p><a href="%s%s/%s">%s</a></p>`, prefix, dbKey, string(iter.Key()[:]), string(iter.Key()[:]))
 				keys = append(keys, p)
 			}
 
