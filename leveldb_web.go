@@ -75,7 +75,7 @@ func DBList(writer http.ResponseWriter, request *http.Request) {
 		if len(res) == 2 {
 			var dbList []string
 			dbs.Range(func(key, value interface{}) bool {
-				p := fmt.Sprintf(`<p><a href="http://%s/%v">%v</a></p>`, hostIp, key, key)
+				p := fmt.Sprintf(`<p><a href="/%v">%v</a></p>`, key, key)
 				dbList = append(dbList, p)
 				return true
 			})
@@ -116,7 +116,7 @@ func KeyList(dbKey string) func(writer http.ResponseWriter, request *http.Reques
 			defer iter.Release()
 
 			for iter.Next() {
-				p := fmt.Sprintf(`<p><a href="http://%s/%s/%s">%s</a></p>`, hostIp, dbKey, string(iter.Key()[:]), string(iter.Key()[:]))
+				p := fmt.Sprintf(`<p><a href="/%s/%s">%s</a></p>`, dbKey, string(iter.Key()[:]), string(iter.Key()[:]))
 				keys = append(keys, p)
 			}
 
