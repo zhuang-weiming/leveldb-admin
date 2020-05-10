@@ -17,7 +17,7 @@ func main() {
 
 	leveldbweb.Register(db, "temp")
 
-	db.Put([]byte("key"), []byte("vale"), nil)
+	db.Put([]byte("key"), []byte("value"), nil)
 
 	<-c
 }

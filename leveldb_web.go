@@ -7,16 +7,20 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"os"
 	"regexp"
 	"sync"
 )
 
 var dbs sync.Map
 var hostIp string
-var address = ":0"
 
-func SetAddress(addr string) {
-	address = addr
+func getAddress() string {
+	if envAddr := os.Getenv("LEVEL_WEB_ADDRESS"); envAddr != "" {
+		return envAddr
+	}
+
+	return ":0"
 }
 
 func Register(db *leveldb.DB, key string) {
@@ -28,10 +32,10 @@ func init() {
 }
 
 func RunWebServer() error {
-	listen, err := net.Listen("tcp", address)
+	listen, err := net.Listen("tcp", getAddress())
 
 	if err != nil {
-		panic(err)
+		return err
 	}
 	mux := http.NewServeMux()
 	mux.HandleFunc("/test", func(writer http.ResponseWriter, request *http.Request) {
