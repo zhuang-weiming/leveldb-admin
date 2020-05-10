@@ -13,6 +13,11 @@ import (
 
 var dbs sync.Map
 var hostIp string
+var address = ":0"
+
+func SetAddress(addr string) {
+	address = addr
+}
 
 func Register(db *leveldb.DB, key string) {
 	dbs.Store(key, db)
@@ -23,7 +28,7 @@ func init() {
 }
 
 func RunWebServer() error {
-	listen, err := net.Listen("tcp", ":0")
+	listen, err := net.Listen("tcp", address)
 
 	if err != nil {
 		panic(err)
