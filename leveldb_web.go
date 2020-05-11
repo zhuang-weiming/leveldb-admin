@@ -27,6 +27,8 @@ func getAddress() string {
 }
 
 func Register(db *leveldb.DB, key string) {
+	log.Printf("add db register: %s, %p", key, db)
+
 	dbs.Store(key, db)
 }
 
