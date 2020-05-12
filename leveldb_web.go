@@ -14,6 +14,7 @@ import (
 
 var dbs sync.Map
 var hostIp string
+var debug = false
 
 const prefix = "/leveldb_web/"
 const testUrl = "/test_leveldb_web"
@@ -26,13 +27,29 @@ func getAddress() string {
 	return ":0"
 }
 
+func logInfo(str string) {
+	if debug {
+		log.Println(str)
+	}
+}
+
+func logInfoWithFunc(c func()) {
+	if debug {
+		c()
+	}
+}
+
 func Register(db *leveldb.DB, key string) {
-	log.Printf("add db register: %s, %p", key, db)
+	logInfo(fmt.Sprintf("add db register: %s, %p", key, db))
 
 	dbs.Store(key, db)
 }
 
 func init() {
+	if envAddr := os.Getenv("LEVEL_WEB_DEBUG"); envAddr == "true" {
+		debug = true
+	}
+
 	go RunWebServer()
 }
 
@@ -58,13 +75,23 @@ func RunWebServer() error {
 
 	hostIp = fmt.Sprintf("http://127.0.0.1:%d", port)
 
-	log.Printf("leveldb web server on: %s", hostIp)
+	logInfo(fmt.Sprintf("leveldb web server on: %s", hostIp))
 
 	return server.Serve(listen)
 }
 
 func DBList(writer http.ResponseWriter, request *http.Request) {
 	reg := regexp.MustCompile(prefix + `(([\w]*))(\/(.*))?`)
+
+	logInfoWithFunc(func() {
+		var dbList []string
+		dbs.Range(func(key, value interface{}) bool {
+			dbList = append(dbList, fmt.Sprintf("%v", key))
+			return true
+		})
+
+		logInfo(fmt.Sprintf("path: %s, %v", request.URL.Path, dbList))
+	})
 
 	if reg.MatchString(request.URL.Path) {
 		base := reg.FindSubmatch([]byte(request.URL.Path))
