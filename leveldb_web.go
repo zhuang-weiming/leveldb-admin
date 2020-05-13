@@ -75,7 +75,7 @@ func RunWebServer() error {
 
 	hostIp = fmt.Sprintf("http://127.0.0.1:%d", port)
 
-	logInfo(fmt.Sprintf("leveldb web server on: %s", hostIp))
+	log.Printf("leveldb web server on: %s", hostIp)
 
 	return server.Serve(listen)
 }
