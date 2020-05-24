@@ -1,6 +1,7 @@
 package leveldb_web
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/syndtr/goleveldb/leveldb"
 	"log"
@@ -16,6 +17,8 @@ const staticPrefix = "/leveldb_web/static/"
 const (
 	apiPrefix = "/leveldb_web/api"
 	apiDbs    = apiPrefix + "/dbs"
+	apiKeys   = apiPrefix + "/db/keys"
+	apiValue  = apiPrefix + "/db/value"
 )
 
 type LevelWeb struct {
@@ -34,7 +37,7 @@ func Register(db *leveldb.DB, key string) {
 	levelWeb.dbs.Store(key, db)
 }
 
-func loadEnv() {
+func init() {
 	if envAddr := os.Getenv("LEVEL_WEB_ADDRESS"); envAddr != "" {
 		levelWeb.address = envAddr
 	}
@@ -42,10 +45,6 @@ func loadEnv() {
 	if envAddr := os.Getenv("LEVEL_WEB_DEBUG"); envAddr == "true" {
 		levelWeb.debug = true
 	}
-}
-
-func init() {
-	loadEnv()
 
 	go levelWeb.startServer()
 }
@@ -62,9 +61,12 @@ func (l *LevelWeb) startServer() error {
 	}
 	l.mux = http.NewServeMux()
 
+	l.startStatic(staticPrefix)
+
 	l.mux.HandleFunc(apiTestUrl, l.apiHelloWord)
 	l.mux.HandleFunc(apiDbs, l.apiDBs)
-	l.startStatic(staticPrefix)
+	l.mux.HandleFunc(apiKeys, l.apiKeys)
+	l.mux.HandleFunc(apiValue, l.apiValue)
 
 	port := listen.Addr().(*net.TCPAddr).Port
 
@@ -78,9 +80,21 @@ func (l *LevelWeb) startServer() error {
 	return server.Serve(listen)
 }
 
-func writeError(writer http.ResponseWriter, err error) {
+func (l *LevelWeb) writeError(writer http.ResponseWriter, err error) {
 	writer.Header().Add("Content-Type", "application/json")
-	writer.Write([]byte(fmt.Sprintf("{\"error:\" %s}", err.Error())))
+
+	_, _ = writer.Write([]byte(fmt.Sprintf("{\"error:\" %s}", err.Error())))
+}
+
+func (l *LevelWeb) writeJson(writer http.ResponseWriter, v interface{}) {
+	marshal, err := json.Marshal(v)
+	if err != nil {
+		l.writeError(writer, err)
+	} else {
+		writer.Header().Add("Content-Type", "application/json")
+
+		_, _ = writer.Write(marshal)
+	}
 }
 
 func (l *LevelWeb) logInfo(str string) {

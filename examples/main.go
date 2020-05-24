@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	leveldbweb "github.com/Dowte/leveldb-web"
 	"github.com/syndtr/goleveldb/leveldb"
 	"os"
@@ -17,7 +18,9 @@ func main() {
 
 	leveldbweb.Register(db, "temp")
 
-	db.Put([]byte("key"), []byte("value"), nil)
+	for i := 0; i < 100; i++ {
+		db.Put([]byte(fmt.Sprintf("%s%d", "qyiuqyieiueioquoiueoiquio/qiouoiueo/qio", i)), []byte("valdskjhdkjshkue"), nil)
+	}
 
 	<-c
 }
