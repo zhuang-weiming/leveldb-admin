@@ -1,4 +1,4 @@
-package leveldb_web
+package leveldb_admin
 
 import (
 	"encoding/json"
@@ -11,11 +11,11 @@ import (
 	"sync"
 )
 
-const apiTestUrl = "/leveldb_web/test"
-const staticPrefix = "/leveldb_web/static/"
+const apiTestUrl = "/leveldb_admin/test"
+const staticPrefix = "/leveldb_admin/static/"
 
 const (
-	apiPrefix    = "/leveldb_web/api"
+	apiPrefix    = "/leveldb_admin/api"
 	apiDbs       = apiPrefix + "/dbs"
 	apiKeys      = apiPrefix + "/db/keys"
 	apiKeyInfo   = apiPrefix + "/db/key/info"
@@ -23,39 +23,39 @@ const (
 	apiKeyUpdate = apiPrefix + "/db/key/update"
 )
 
-type LevelWeb struct {
+type LevelAdmin struct {
 	dbs     sync.Map
 	address string
 	debug   bool
 	mux     *http.ServeMux
 }
 
-var levelWeb = &LevelWeb{}
+var levelAdmin = &LevelAdmin{}
 
 // Register after init
 func Register(db *leveldb.DB, key string) {
-	levelWeb.logInfo(fmt.Sprintf("add db register: %s, %p", key, db))
+	levelAdmin.logInfo(fmt.Sprintf("add db register: %s, %p", key, db))
 
-	levelWeb.dbs.Store(key, db)
+	levelAdmin.dbs.Store(key, db)
 }
 
 func init() {
-	if envAddr := os.Getenv("LEVEL_WEB_ADDRESS"); envAddr != "" {
-		levelWeb.address = envAddr
+	if envAddr := os.Getenv("LEVEL_ADMIN_ADDRESS"); envAddr != "" {
+		levelAdmin.address = envAddr
 	}
 
-	if envAddr := os.Getenv("LEVEL_WEB_DEBUG"); envAddr == "true" {
-		levelWeb.debug = true
+	if envAddr := os.Getenv("LEVEL_ADMIN_DEBUG"); envAddr == "true" {
+		levelAdmin.debug = true
 	}
 
-	go levelWeb.startServer()
+	go levelAdmin.startServer()
 }
 
-func (l *LevelWeb) apiHelloWord(writer http.ResponseWriter, request *http.Request) {
+func (l *LevelAdmin) apiHelloWord(writer http.ResponseWriter, request *http.Request) {
 	writer.Write([]byte("hello world"))
 }
 
-func (l *LevelWeb) startServer() error {
+func (l *LevelAdmin) startServer() error {
 	listen, err := net.Listen("tcp", l.address)
 
 	if err != nil {
@@ -79,18 +79,18 @@ func (l *LevelWeb) startServer() error {
 		Handler: l.mux,
 	}
 
-	log.Printf("leveldb web server on: http://%s:%d/leveldb_web/static/", "127.0.0.1", listen.Addr().(*net.TCPAddr).Port)
+	log.Printf("leveldb admin server on: http://%s:%d/leveldb_admin/static/", "127.0.0.1", listen.Addr().(*net.TCPAddr).Port)
 
 	return server.Serve(listen)
 }
 
-func (l *LevelWeb) writeError(writer http.ResponseWriter, err error) {
+func (l *LevelAdmin) writeError(writer http.ResponseWriter, err error) {
 	writer.Header().Add("Content-Type", "application/json")
 
 	_, _ = writer.Write([]byte(fmt.Sprintf("{\"error:\" %s}", err.Error())))
 }
 
-func (l *LevelWeb) writeJson(writer http.ResponseWriter, v interface{}) {
+func (l *LevelAdmin) writeJson(writer http.ResponseWriter, v interface{}) {
 	marshal, err := json.Marshal(v)
 	if err != nil {
 		l.writeError(writer, err)
@@ -101,13 +101,13 @@ func (l *LevelWeb) writeJson(writer http.ResponseWriter, v interface{}) {
 	}
 }
 
-func (l *LevelWeb) logInfo(str string) {
+func (l *LevelAdmin) logInfo(str string) {
 	if l.debug {
 		log.Println(str)
 	}
 }
 
-func (l *LevelWeb) logInfoWithFunc(c func()) {
+func (l *LevelAdmin) logInfoWithFunc(c func()) {
 	if l.debug {
 		c()
 	}

@@ -1,4 +1,4 @@
-package leveldb_web
+package leveldb_admin
 
 import (
 	"encoding/json"
@@ -17,7 +17,7 @@ type updateReq struct {
 	Value string
 }
 
-func (l *LevelWeb) apiKeyUpdate(writer http.ResponseWriter, request *http.Request) {
+func (l *LevelAdmin) apiKeyUpdate(writer http.ResponseWriter, request *http.Request) {
 	reqData := &updateReq{}
 	err := json.NewDecoder(request.Body).Decode(&reqData)
 	if err != nil {

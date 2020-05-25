@@ -1,7 +1,7 @@
 import http from './http'
 
 export function dbs() {
-  return http.get("/leveldb_web/api/dbs")
+  return http.get("/leveldb_admin/api/dbs")
 }
 
 interface KeysOption {
@@ -11,7 +11,7 @@ interface KeysOption {
 }
 
 export function keys(option: KeysOption) {
-  return http.get("/leveldb_web/api/db/keys", {
+  return http.get("/leveldb_admin/api/db/keys", {
     params: option
   })
 }
@@ -22,7 +22,7 @@ interface KeyInfoOption {
 }
 
 export function keyInfo(option: KeyInfoOption) {
-  return http.get("/leveldb_web/api/db/key/info", {
+  return http.get("/leveldb_admin/api/db/key/info", {
     params: option
   })
 }
@@ -33,7 +33,7 @@ interface KeyDeleteOption {
 }
 
 export function keyDelete(option: KeyDeleteOption) {
-  return http.post("/leveldb_web/api/db/key/delete", option)
+  return http.post("/leveldb_admin/api/db/key/delete", option)
 }
 
 interface KeyUpdateOption {
@@ -43,5 +43,5 @@ interface KeyUpdateOption {
 }
 
 export function keyUpdate(option: KeyUpdateOption) {
-  return http.post("/leveldb_web/api/db/key/update", option)
+  return http.post("/leveldb_admin/api/db/key/update", option)
 }

@@ -16,7 +16,7 @@
 <script lang="ts">
   import { Component, Vue } from "vue-property-decorator"
   import KeyList from "@/components/KeyList.vue"
-  import {dbs} from "@/api/leveldb_web"
+  import {dbs} from "@/api/leveldb_admin"
   import { Tabs, TabPane, Header, Main, Container } from "element-ui"
 
   @Component({

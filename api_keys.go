@@ -1,4 +1,4 @@
-package leveldb_web
+package leveldb_admin
 
 import (
 	"github.com/siddontang/go/hack"
@@ -14,7 +14,7 @@ type keyListRes struct {
 	IsPart     bool
 }
 
-func (l *LevelWeb) apiKeys(writer http.ResponseWriter, request *http.Request) {
+func (l *LevelAdmin) apiKeys(writer http.ResponseWriter, request *http.Request) {
 	db := request.URL.Query().Get("db")
 	if db == "" {
 		http.NotFound(writer, request)

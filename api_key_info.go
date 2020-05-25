@@ -1,4 +1,4 @@
-package leveldb_web
+package leveldb_admin
 
 import (
 	"github.com/siddontang/go/hack"
@@ -10,7 +10,7 @@ type keyInfoRes struct {
 	Value interface{}
 }
 
-func (l *LevelWeb) apiKeyInfo(writer http.ResponseWriter, request *http.Request) {
+func (l *LevelAdmin) apiKeyInfo(writer http.ResponseWriter, request *http.Request) {
 	db := request.URL.Query().Get("db")
 	key := request.URL.Query().Get("key")
 	if db == "" || key == "" {

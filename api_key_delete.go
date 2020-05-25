@@ -1,4 +1,4 @@
-package leveldb_web
+package leveldb_admin
 
 import (
 	"encoding/json"
@@ -16,7 +16,7 @@ type deleteReq struct {
 	Key string
 }
 
-func (l *LevelWeb) apiKeyDelete(writer http.ResponseWriter, request *http.Request) {
+func (l *LevelAdmin) apiKeyDelete(writer http.ResponseWriter, request *http.Request) {
 	reqData := &deleteReq{}
 	err := json.NewDecoder(request.Body).Decode(&reqData)
 	if err != nil {

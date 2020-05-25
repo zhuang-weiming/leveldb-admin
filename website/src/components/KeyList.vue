@@ -64,7 +64,7 @@
 <script lang="ts">
   import {Component, Prop, Vue, Watch} from "vue-property-decorator"
   import {Table, TableColumn, Message, Input, Row, Col, Button, Select, Option} from "element-ui"
-  import {keys, keyInfo, keyDelete, keyUpdate} from "@/api/leveldb_web"
+  import {keys, keyInfo, keyDelete, keyUpdate} from "@/api/leveldb_admin"
 
   interface Item {
     keyName: string;

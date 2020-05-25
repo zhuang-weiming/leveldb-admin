@@ -1,11 +1,11 @@
-package leveldb_web
+package leveldb_admin
 
 import (
 	"fmt"
 	"net/http"
 )
 
-func (l *LevelWeb) apiDBs(writer http.ResponseWriter, request *http.Request) {
+func (l *LevelAdmin) apiDBs(writer http.ResponseWriter, request *http.Request) {
 	var dbsMap []string
 
 	l.dbs.Range(func(key, value interface{}) bool {
