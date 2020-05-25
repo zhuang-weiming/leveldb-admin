@@ -6,11 +6,11 @@ import (
 	"net/http"
 )
 
-type valueRes struct {
+type keyInfoRes struct {
 	Value interface{}
 }
 
-func (l *LevelWeb) apiValue(writer http.ResponseWriter, request *http.Request) {
+func (l *LevelWeb) apiKeyInfo(writer http.ResponseWriter, request *http.Request) {
 	db := request.URL.Query().Get("db")
 	key := request.URL.Query().Get("key")
 	if db == "" || key == "" {
@@ -27,7 +27,7 @@ func (l *LevelWeb) apiValue(writer http.ResponseWriter, request *http.Request) {
 			return
 		}
 
-		l.writeJson(writer, &valueRes{Value: string(value)})
+		l.writeJson(writer, &keyInfoRes{Value: string(value)})
 	} else {
 		http.NotFound(writer, request)
 	}

@@ -16,7 +16,7 @@
 <script lang="ts">
   import { Component, Vue } from "vue-property-decorator"
   import KeyList from "@/components/KeyList.vue"
-  import {getDbs} from "@/api/leveldb_web"
+  import {dbs} from "@/api/leveldb_web"
   import { Tabs, TabPane, Header, Main, Container } from "element-ui"
 
   @Component({
@@ -43,7 +43,7 @@
     }
 
     created() {
-      getDbs().then(res => {
+      dbs().then(res => {
         this.dbs = res.data
       })
     }
@@ -59,5 +59,8 @@
     color: #333;
     line-height: 60px;
     margin-bottom: 5px;
+  }
+  .el-main {
+    padding-top: 20px;
   }
 </style>

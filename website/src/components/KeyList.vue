@@ -8,8 +8,8 @@
           <i slot="prefix" class="el-input__icon el-icon-search"></i>
         </el-input>
       </el-col>
-      <el-col :span="2" :offset="9">
-        <el-select v-model="format" placeholder="格式">
+      <el-col :span="2">
+        <el-select v-model="format" placeholder="格式化">
           <el-option
             v-for="item in options"
             :key="item.value"
@@ -22,6 +22,7 @@
     <el-row :gutter="40">
       <el-col :span="11">
         <el-table
+          highlight-current-row
           :data="data"
           class="list"
           :border="true"
@@ -44,23 +45,26 @@
             </template>
           </el-table-column>
         </el-table>
+        <i v-show="searchText" class="el-icon-arrow-down next" @click="next"></i>
       </el-col>
       <el-col :span="11">
+        <el-button @click="handleUpdate" size="small" type="warning" round class="update">更新</el-button>
         <el-input
           :rows="tableHeight / 21"
           type="textarea"
           placeholder="value"
-          v-model="value">
+          v-model="currentValue">
         </el-input>
       </el-col>
     </el-row>
+
   </div>
 </template>
 
 <script lang="ts">
   import {Component, Prop, Vue, Watch} from "vue-property-decorator"
   import {Table, TableColumn, Message, Input, Row, Col, Button, Select, Option} from "element-ui"
-  import {getKeys, getValue} from "@/api/leveldb_web"
+  import {keys, keyInfo, keyDelete, keyUpdate} from "@/api/leveldb_web"
 
   interface Item {
     keyName: string;
@@ -89,8 +93,11 @@
 
     private prefix = ""
     private tableHeight = 100
-    private value = ""
+    private currentOldValue = ''
+    private currentValue = ''
+    private currentKey = ""
     private format = ""
+    private searchText = ""
     private options = [
       {
         label: 'Json',
@@ -111,27 +118,58 @@
       })
     }
 
+    next() {
+      this.loadKeys()
+    }
+
     created() {
       this.loadKeys()
     }
 
     handleItemClick(row: Item) {
-      console.log(row)
       const db = this.db
       if (!db || db == "") {
         return Message.error("无效的db name")
       }
-      getValue({db: this.db, key: row.keyName}).then(res => {
-        this.value = res.data.Value
+      this.currentKey = row.keyName
+      keyInfo({db: this.db, key: row.keyName}).then(res => {
+        this.currentOldValue = res.data.Value
+        this.currentValue = res.data.Value
       })
     }
 
+    handleUpdate() {
+      if (this.currentKey && (this.currentOldValue != this.currentValue)) {
+          keyUpdate({db: this.db, key: this.currentKey, value: this.currentValue}).then(res => {
+            if (res.data.Success) {
+              Message.success("更新成功!")
+            } else {
+              Message.success("更新失败!")
+            }
+          })
+      } else {
+        Message.info("无变化")
+      }
+    }
+
     handleDelete(row: Item) {
-      console.log(row)
+      keyDelete({db: this.db, key: row.keyName}).then(res => {
+        if (res.data.Success) {
+          Message.success("删除成功!")
+        } else {
+          Message.success("删除失败!")
+        }
+      })
+      delete this.data[this.data.indexOf(row)]
+
+      this.data = this.data.map(item => {
+        return item
+      })
     }
 
     @Watch("prefix")
     onPrefixChange() {
+      this.data = []
       this.loadKeys()
     }
 
@@ -141,16 +179,17 @@
         return Message.error("无效的db name")
       }
 
-      getKeys({
+      keys({
         db: db,
         prefix: this.prefix,
-        searchText: ""
+        searchText: this.searchText
       }).then(res => {
-        this.data = res.data.Items.map((item: string) => {
+        this.searchText = res.data.IsPart ? res.data.SearchText : ""
+        this.data = this.data.concat(res.data.Items.map((item: string) => {
           return {
             keyName: item
           }
-        })
+        }))
       })
     }
   }
@@ -158,6 +197,7 @@
 
 <style>
   .key-list {
+    cursor: pointer;
     height: 100%;
   }
 
@@ -167,5 +207,20 @@
   }
   .filter {
     padding-right: 20px;
+    margin-right: 20px;
+  }
+  .update {
+    position: absolute;
+    z-index: 10;
+    right: 10%;
+    top: 1%
+  }
+  .next {
+    z-index: 10;
+    width: 100%;
+    text-align: center;
+  }
+  .el-table__body tr.current-row>td {
+    background: #6ffff7 !important;
   }
 </style>

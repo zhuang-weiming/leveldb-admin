@@ -22,7 +22,7 @@ func (l *LevelWeb) apiKeys(writer http.ResponseWriter, request *http.Request) {
 	}
 
 	prefix := request.URL.Query().Get("prefix")
-	searchText := request.URL.Query().Get("SearchText")
+	searchText := request.URL.Query().Get("searchText")
 	limitStr := request.URL.Query().Get("limit")
 	limit := 15
 	if limitStr != "" {

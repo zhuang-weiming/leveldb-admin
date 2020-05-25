@@ -15,10 +15,12 @@ const apiTestUrl = "/leveldb_web/test"
 const staticPrefix = "/leveldb_web/static/"
 
 const (
-	apiPrefix = "/leveldb_web/api"
-	apiDbs    = apiPrefix + "/dbs"
-	apiKeys   = apiPrefix + "/db/keys"
-	apiValue  = apiPrefix + "/db/value"
+	apiPrefix    = "/leveldb_web/api"
+	apiDbs       = apiPrefix + "/dbs"
+	apiKeys      = apiPrefix + "/db/keys"
+	apiKeyInfo   = apiPrefix + "/db/key/info"
+	apiKeyDelete = apiPrefix + "/db/key/delete"
+	apiKeyUpdate = apiPrefix + "/db/key/update"
 )
 
 type LevelWeb struct {
@@ -66,7 +68,9 @@ func (l *LevelWeb) startServer() error {
 	l.mux.HandleFunc(apiTestUrl, l.apiHelloWord)
 	l.mux.HandleFunc(apiDbs, l.apiDBs)
 	l.mux.HandleFunc(apiKeys, l.apiKeys)
-	l.mux.HandleFunc(apiValue, l.apiValue)
+	l.mux.HandleFunc(apiKeyInfo, l.apiKeyInfo)
+	l.mux.HandleFunc(apiKeyDelete, l.apiKeyDelete)
+	l.mux.HandleFunc(apiKeyUpdate, l.apiKeyUpdate)
 
 	port := listen.Addr().(*net.TCPAddr).Port
 
@@ -75,7 +79,7 @@ func (l *LevelWeb) startServer() error {
 		Handler: l.mux,
 	}
 
-	log.Printf("leveldb web server on: http://%s:%d", "127.0.0.1", listen.Addr().(*net.TCPAddr).Port)
+	log.Printf("leveldb web server on: http://%s:%d/leveldb_web/static/", "127.0.0.1", listen.Addr().(*net.TCPAddr).Port)
 
 	return server.Serve(listen)
 }
