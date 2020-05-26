@@ -9,7 +9,7 @@
         </el-input>
       </el-col>
       <el-col :span="2">
-        <el-select v-model="format" placeholder="格式化">
+        <el-select v-model="format" placeholder="格式化" clearable>
           <el-option
             v-for="item in options"
             :key="item.value"
@@ -94,8 +94,7 @@
 
     private prefix = ""
     private tableHeight = 100
-    private currentOldValue = ''
-    private currentValue = ''
+    private currentValue = ""
     private currentKey = ""
     private format = ""
     private searchText = ""
@@ -105,6 +104,42 @@
         value: 'Json',
       }
     ]
+
+    formatValueToJson(value: string) {
+      let formatted = value
+      try {
+        formatted = JSON.stringify(JSON.parse(value), null, 4)
+      } catch (e) {
+        console.log(e)
+      }
+
+      return formatted
+    }
+
+    formatJsonToValue(json: string) {
+      let formatted = json
+      try {
+        formatted = JSON.stringify(JSON.parse(json))
+      } catch (e) {
+        console.log(e)
+      }
+
+      return formatted
+    }
+
+    @Watch("format")
+    formatChange(now: string, old: string) {
+      switch (this.format) {
+        case "Json":
+          this.currentValue = this.formatValueToJson(this.currentValue)
+          break
+        default:
+          switch (old) {
+            case "Json":
+              this.currentValue = this.formatJsonToValue(this.currentValue)
+          }
+      }
+    }
 
     mounted() {
       this.$nextTick(function () {
@@ -134,13 +169,19 @@
       }
       this.currentKey = row.keyName
       keyInfo({db: this.db, key: row.keyName}).then(res => {
-        this.currentOldValue = res.data.Value
-        this.currentValue = res.data.Value
+        let formatValue = res.data.Value
+        switch (this.format) {
+          case "Json":
+            formatValue = this.formatValueToJson(res.data.Value)
+            break
+        }
+
+        this.currentValue = formatValue
       })
     }
 
     handleUpdate() {
-      if (this.currentKey && (this.currentOldValue != this.currentValue)) {
+      if (this.currentKey) {
           keyUpdate({db: this.db, key: this.currentKey, value: this.currentValue}).then(res => {
             if (res.data.Success) {
               Message.success("更新成功!")
@@ -149,7 +190,7 @@
             }
           })
       } else {
-        Message.info("无变化")
+        Message.info("请选择key")
       }
     }
 
