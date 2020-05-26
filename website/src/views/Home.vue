@@ -30,7 +30,7 @@
     }
   })
   export default class Home extends Vue {
-    private showTab = 'temp'
+    private showTab = ''
 
     private dbs: Array<string> = []
 
@@ -45,6 +45,9 @@
     created() {
       dbs().then(res => {
         this.dbs = res.data
+        if (res.data.length) {
+          this.showTab = res.data[0]
+        }
       })
     }
     handleClick() {

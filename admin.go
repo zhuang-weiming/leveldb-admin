@@ -79,7 +79,7 @@ func (l *LevelAdmin) startServer() error {
 		Handler: l.mux,
 	}
 
-	log.Printf("leveldb admin server on: http://%s:%d/leveldb_admin/static/", "127.0.0.1", listen.Addr().(*net.TCPAddr).Port)
+	l.logInfo(fmt.Sprintf("leveldb admin server on: http://%s:%d/leveldb_admin/static/", "127.0.0.1", listen.Addr().(*net.TCPAddr).Port))
 
 	return server.Serve(listen)
 }

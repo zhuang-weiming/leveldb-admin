@@ -52,6 +52,7 @@
         <el-input
           :rows="tableHeight / 21"
           type="textarea"
+          resize="none"
           placeholder="value"
           v-model="currentValue">
         </el-input>
@@ -213,7 +214,7 @@
     position: absolute;
     z-index: 10;
     right: 10%;
-    top: 1%
+    bottom: 4%;
   }
   .next {
     z-index: 10;
