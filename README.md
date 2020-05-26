@@ -25,7 +25,7 @@ func main() {
    // 正常的db操作逻辑...
 
    // 只需要向leveldbAdmin注册db的指针和一个用于区分的描述
-   levelAdmin.Register(db, "description")
+   levelAdmin.GetLevelAdmin().Register(db, "description")
 }
 ```
 1. 启动后会有一条日志输出[LEVEL_ADMIN_DEBUG=true]时

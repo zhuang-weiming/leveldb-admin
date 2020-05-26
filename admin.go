@@ -30,25 +30,38 @@ type LevelAdmin struct {
 	mux     *http.ServeMux
 }
 
-var levelAdmin = &LevelAdmin{}
+var levelAdmin *LevelAdmin
+var once sync.Once
+
+func GetLevelAdmin() *LevelAdmin {
+	if levelAdmin == nil {
+		once.Do(func() {
+			levelAdmin = &LevelAdmin{}
+
+			go levelAdmin.startServer()
+
+			levelAdmin.loadEnv()
+		})
+	}
+
+	return &LevelAdmin{}
+}
 
 // Register after init
-func Register(db *leveldb.DB, key string) {
+func (l *LevelAdmin) Register(db *leveldb.DB, key string) {
 	levelAdmin.logInfo(fmt.Sprintf("add db register: %s, %p", key, db))
 
 	levelAdmin.dbs.Store(key, db)
 }
 
-func init() {
+func (l *LevelAdmin) loadEnv() {
 	if envAddr := os.Getenv("LEVEL_ADMIN_ADDRESS"); envAddr != "" {
-		levelAdmin.address = envAddr
+		l.address = envAddr
 	}
 
 	if envAddr := os.Getenv("LEVEL_ADMIN_DEBUG"); envAddr == "true" {
-		levelAdmin.debug = true
+		l.debug = true
 	}
-
-	go levelAdmin.startServer()
 }
 
 func (l *LevelAdmin) apiHelloWord(writer http.ResponseWriter, request *http.Request) {

@@ -16,7 +16,7 @@ func main() {
 		panic(err)
 	}
 
-	levelAdmin.Register(db, "temp")
+	levelAdmin.GetLevelAdmin().Register(db, "temp")
 
 	for i := 0; i < 100; i++ {
 		db.Put([]byte(fmt.Sprintf("%s%d", "qyiuqyieiueioquoiueoiquio/qiouoiueo/qio", i)), []byte("valdskjhdkjshkue"), nil)
