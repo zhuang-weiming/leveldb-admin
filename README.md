@@ -46,7 +46,7 @@ func main() {
 package main
 
 import (
-    levelAdmin "github.com/Dowte/leveldb-admin"
+    levelAdmin "github.com/qjues/leveldb-admin"
     "github.com/syndtr/goleveldb/leveldb"
     "net/http"
 )
