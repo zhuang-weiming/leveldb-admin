@@ -15,7 +15,7 @@ LEVEL_ADMIN_DEBUG  // 开启debug true
 package main
 
 import (
-    levelAdmin "github.com/Dowte/leveldb-admin"
+    levelAdmin "github.com/qjues/leveldb-admin"
     "github.com/syndtr/goleveldb/leveldb"
 )
 

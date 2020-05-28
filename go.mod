@@ -1,4 +1,4 @@
-module github.com/Dowte/leveldb-admin
+module github.com/qjues/leveldb-admin
 
 go 1.14
 
