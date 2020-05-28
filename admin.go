@@ -37,21 +37,28 @@ func GetLevelAdmin() *LevelAdmin {
 	if levelAdmin == nil {
 		once.Do(func() {
 			levelAdmin = &LevelAdmin{}
-
-			go levelAdmin.startServer()
-
 			levelAdmin.loadEnv()
 		})
 	}
 
-	return &LevelAdmin{}
+	return levelAdmin
 }
 
 // Register after init
-func (l *LevelAdmin) Register(db *leveldb.DB, key string) {
+func (l *LevelAdmin) Register(db *leveldb.DB, key string) *LevelAdmin {
 	levelAdmin.logInfo(fmt.Sprintf("add db register: %s, %p", key, db))
 
 	levelAdmin.dbs.Store(key, db)
+
+	return l
+}
+
+func (l *LevelAdmin) SetServerMux(mux *http.ServeMux) *LevelAdmin {
+	if l.mux == nil {
+		l.mux = mux
+	}
+
+	return l
 }
 
 func (l *LevelAdmin) loadEnv() {
@@ -59,7 +66,7 @@ func (l *LevelAdmin) loadEnv() {
 		l.address = envAddr
 	}
 
-	if envAddr := os.Getenv("LEVEL_ADMIN_DEBUG"); envAddr == "true" {
+	if debug := os.Getenv("LEVEL_ADMIN_DEBUG"); debug == "true" {
 		l.debug = true
 	}
 }
@@ -68,13 +75,45 @@ func (l *LevelAdmin) apiHelloWord(writer http.ResponseWriter, request *http.Requ
 	writer.Write([]byte("hello world"))
 }
 
-func (l *LevelAdmin) startServer() error {
-	listen, err := net.Listen("tcp", l.address)
+func (l *LevelAdmin) initServerMux() error {
+	if l.mux == nil {
+		listen, err := net.Listen("tcp", l.address)
+
+		if err != nil {
+			l.logInfo(fmt.Sprintf("listen %s error: %v", l.address, err))
+			return err
+		}
+		l.mux = http.NewServeMux()
+
+		port := listen.Addr().(*net.TCPAddr).Port
+
+		server := http.Server{
+			Addr:    fmt.Sprintf(":%d", port),
+			Handler: l.mux,
+		}
+
+		l.logInfo(fmt.Sprintf("leveldb admin server on: http://%s:%d/leveldb_admin/static/", "127.0.0.1", listen.Addr().(*net.TCPAddr).Port))
+
+		go func() {
+			err = server.Serve(listen)
+			if err != nil {
+				l.logInfo(fmt.Sprintf("server on %s error: %v", l.address, err))
+			}
+		}()
+	} else {
+		l.logInfo("leveldb admin server on given mux")
+	}
+
+	return nil
+}
+
+func (l *LevelAdmin) Start() error {
+	err := l.initServerMux()
 
 	if err != nil {
+		l.logInfo(fmt.Sprintf("init server mux: %v", err))
 		return err
 	}
-	l.mux = http.NewServeMux()
 
 	l.startStatic(staticPrefix)
 
@@ -85,16 +124,9 @@ func (l *LevelAdmin) startServer() error {
 	l.mux.HandleFunc(apiKeyDelete, l.apiKeyDelete)
 	l.mux.HandleFunc(apiKeyUpdate, l.apiKeyUpdate)
 
-	port := listen.Addr().(*net.TCPAddr).Port
+	l.logInfo("leveldb admin server started.")
 
-	server := http.Server{
-		Addr:    fmt.Sprintf(":%d", port),
-		Handler: l.mux,
-	}
-
-	l.logInfo(fmt.Sprintf("leveldb admin server on: http://%s:%d/leveldb_admin/static/", "127.0.0.1", listen.Addr().(*net.TCPAddr).Port))
-
-	return server.Serve(listen)
+	return nil
 }
 
 func (l *LevelAdmin) writeError(writer http.ResponseWriter, err error) {
