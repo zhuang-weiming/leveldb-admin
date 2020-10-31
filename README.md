@@ -68,4 +68,4 @@ func main() {
 ```
 ### 浏览器访问 http://127.0.0.1:4333/leveldb_admin/static/
 
-![demo](https://raw.githubusercontent.com/Dowte/imgs/master/1057DA66-A4FC-42EE-A3EE-F3FD910DA073.png)
+![demo](https://qjues.github.io/level-db-admin/demo.png)

@@ -45,3 +45,15 @@ interface KeyUpdateOption {
 export function keyUpdate(option: KeyUpdateOption) {
   return http.post("/leveldb_admin/api/db/key/update", option)
 }
+
+interface KeysCountOption {
+  db: string;
+  searchText: string;
+  prefix: string;
+}
+
+export function keysCount(option: KeysCountOption) {
+  return http.get("/leveldb_admin/api/db/keys/count", {
+    params: option
+  })
+}

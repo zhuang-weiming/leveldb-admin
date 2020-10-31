@@ -45,7 +45,10 @@
             </template>
           </el-table-column>
         </el-table>
-        <i v-show="searchText" class="el-icon-arrow-down next" @click="next"></i>
+        <div class="foot">
+          <el-button :disabled="!searchText" size="mini" class="el-icon-arrow-down" style="margin-right: 32%;padding: 0 10px" @click="next"></el-button>
+          <el-tag size="mini" :type="countType" @click="loadCounts">总数: {{count}}</el-tag>
+        </div>
       </el-col>
       <el-col :span="11">
         <el-button @click="handleUpdate" size="small" type="warning" round class="update">更新</el-button>
@@ -64,8 +67,8 @@
 
 <script lang="ts">
   import {Component, Prop, Vue, Watch} from "vue-property-decorator"
-  import {Table, TableColumn, Message, Input, Row, Col, Button, Select, Option} from "element-ui"
-  import {keys, keyInfo, keyDelete, keyUpdate} from "@/api/leveldb_admin"
+  import {Table, TableColumn, Message, Input, Row, Col, Button, Select, Option, Tag, MessageBox} from "element-ui"
+  import {keys, keyInfo, keyDelete, keyUpdate, keysCount} from "@/api/leveldb_admin"
 
   interface Item {
     keyName: string;
@@ -81,6 +84,7 @@
       ElButton: Button,
       ElSelect: Select,
       ElOption: Option,
+      ElTag: Tag,
     }
   })
   export default class List extends Vue {
@@ -98,12 +102,44 @@
     private currentKey = ""
     private format = ""
     private searchText = ""
+    private countSearchText = ""
+    private countType = "success"
+    private count = 0
+    private countIsTrue = false
+    private countLock = false
+
     private options = [
       {
         label: 'Json',
         value: 'Json',
       }
     ]
+
+    loadCounts() {
+      if (!this.countLock) {
+        this.countLock = true
+        if (this.countIsTrue) {
+          return
+        }
+        const db = this.db
+        if (!db || db == "") {
+          return Message.error("无效的db name")
+        }
+
+        keysCount({
+          db: db,
+          prefix: this.prefix,
+          searchText: this.countSearchText
+        }).then(res => {
+          this.countSearchText = res.data.LastKey
+          this.count += res.data.Count
+          this.countType = res.data.IsTrue ? "success" : "warning"
+          this.countIsTrue = res.data.IsTrue
+        }).finally(() => {
+          this.countLock = false
+        })
+      }
+    }
 
     formatValueToJson(value: string) {
       let formatted = value
@@ -160,6 +196,7 @@
 
     created() {
       this.loadKeys()
+      this.loadCounts()
     }
 
     handleItemClick(row: Item) {
@@ -195,24 +232,34 @@
     }
 
     handleDelete(row: Item) {
-      keyDelete({db: this.db, key: row.keyName}).then(res => {
-        if (res.data.Success) {
-          Message.success("删除成功!")
-        } else {
-          Message.success("删除失败!")
-        }
-      })
-      delete this.data[this.data.indexOf(row)]
+      MessageBox.confirm('此操作将永久删除记录, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        keyDelete({db: this.db, key: row.keyName}).then(res => {
+          if (res.data.Success) {
+            Message.success("删除成功!")
+            delete this.data[this.data.indexOf(row)]
 
-      this.data = this.data.map(item => {
-        return item
-      })
+            this.data = this.data.map(item => {
+              return item
+            })
+          } else {
+            Message.success("删除失败!")
+          }
+        })
+      }).catch(() => {
+        Message.info("已取消删除!")
+      });
     }
 
     @Watch("prefix")
     onPrefixChange() {
       this.data = []
       this.loadKeys()
+      this.countIsTrue = false
+      this.loadCounts()
     }
 
     loadKeys() {
@@ -257,11 +304,12 @@
     right: 10%;
     bottom: 4%;
   }
-  .next {
+  .foot {
     z-index: 10;
     width: 100%;
-    text-align: center;
+    padding-left: 50%;
   }
+
   .el-table__body tr.current-row>td {
     background: #6ffff7 !important;
   }

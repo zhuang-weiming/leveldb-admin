@@ -18,6 +18,7 @@ const (
 	apiPrefix    = "/leveldb_admin/api"
 	apiDbs       = apiPrefix + "/dbs"
 	apiKeys      = apiPrefix + "/db/keys"
+	apiKeysCount = apiPrefix + "/db/keys/count"
 	apiKeyInfo   = apiPrefix + "/db/key/info"
 	apiKeyDelete = apiPrefix + "/db/key/delete"
 	apiKeyUpdate = apiPrefix + "/db/key/update"
@@ -120,6 +121,7 @@ func (l *LevelAdmin) Start() error {
 	l.mux.HandleFunc(apiTestUrl, l.apiHelloWord)
 	l.mux.HandleFunc(apiDbs, l.apiDBs)
 	l.mux.HandleFunc(apiKeys, l.apiKeys)
+	l.mux.HandleFunc(apiKeysCount, l.apiKeysCount)
 	l.mux.HandleFunc(apiKeyInfo, l.apiKeyInfo)
 	l.mux.HandleFunc(apiKeyDelete, l.apiKeyDelete)
 	l.mux.HandleFunc(apiKeyUpdate, l.apiKeyUpdate)
