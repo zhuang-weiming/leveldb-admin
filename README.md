@@ -19,8 +19,8 @@ LEVEL_ADMIN_DEBUG  // 开启debug true
 package main
 
 import (
-    levelAdmin "github.com/qjues/leveldb-admin"
-    "github.com/syndtr/goleveldb/leveldb"
+	levelAdmin "github.com/fwhat/leveldb-admin"
+	"github.com/syndtr/goleveldb/leveldb"
 )
 
 func main() {
@@ -46,7 +46,7 @@ func main() {
 package main
 
 import (
-    levelAdmin "github.com/qjues/leveldb-admin"
+    levelAdmin "github.com/fwhat/leveldb-admin"
     "github.com/syndtr/goleveldb/leveldb"
     "net/http"
 )
@@ -68,4 +68,4 @@ func main() {
 ```
 ### 浏览器访问 http://127.0.0.1:4333/leveldb_admin/static/
 
-![demo](https://qjues.github.io/level-db-admin/demo.png)
+![demo](https://fwhat.github.io/level-db-admin/demo.png)
