@@ -1,4 +1,4 @@
-# leveldb 的web简单管理工具 [嵌入go代码中]
+# leveldb 的web简单管理工具
 
 ## 使用说明
 
@@ -11,7 +11,7 @@ LEVEL_ADMIN_DEBUG  // 开启debug true
 
 ### 使用示例
 
-#### 1. 独立server模式
+#### 1. 独立server模式[嵌入go代码中]
 
 [LEVEL_ADMIN_ADDRESS=:4333]
 
@@ -38,7 +38,7 @@ func main() {
 
 2020/05/26 00:31:54 leveldb admin server on: http://127.0.0.1:4333/leveldb_admin/static/
 
-#### 2. 共用server模式
+#### 2. 共用server模式[嵌入go代码中]
 
 [将不处理 LEVEL_ADMIN_ADDRESS 配置]
 
@@ -66,6 +66,23 @@ func main() {
     levelAdmin.GetLevelAdmin().Register(db, "description").SetServerMux(http.DefaultServeMux).Start()
 }
 ```
+
+#### 3. 独立启动(执行程序)
+
+```bash
+# go build cmd/main.go
+
+./mian -path /var/leveldb-web -path /var/leveldb
+```
+
+#### 4. 独立启动(docker)
+
+```bash
+# docker build -t leveladmin .
+
+docker run -d -e LEVEL_ADMIN_DEBUG=true -e LEVEL_ADMIN_ADDRESS=:4333 -p 4333:4333 -v /var/level:/var/level leveladmin /bin/main -path /var/level
+```
+
 ### 浏览器访问 http://127.0.0.1:4333/leveldb_admin/static/
 
 ![demo](https://fwhat.github.io/level-db-admin/demo.png)
